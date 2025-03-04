@@ -6,7 +6,7 @@ Quakemetaformer is an extension built on top of [Metaformer](https://github.com/
 
 Quakemetaformer integrates both satellite imagery and complementary metadata (e.g., ground motion, soil data, SAR-derived indices) into the framework to achieve improved performance in multiclass post-earthquake building damage assessment.
 
-![Architecture Diagram](figs/Architecture.pdf)
+![Architecture Diagram](figs/Architecture.png)
 
 ## Installation
 
