@@ -1,6 +1,6 @@
-# Quakemetaformer
+# QuakeMetaFormer
 
-Quakemetaformer is an extension built on top of [Metaformer](https://github.com/dqshuai/MetaFormer) that implements the transformer-based architecture for earthquake damage assessment. This repository contains the code and modifications implimented for the paper "Multiclass Post-Earthquake Building Assessment Integrating Optical and SAR Satellite Imagery, Ground Motion, and Soil Data with Transformers".
+QuakeMetaFormer is an extension built on top of [Metaformer](https://github.com/dqshuai/MetaFormer) that implements the transformer-based architecture for earthquake damage assessment. This repository contains the code and modifications implimented for the paper "Multiclass Post-Earthquake Building Assessment Integrating Optical and SAR Satellite Imagery, Ground Motion, and Soil Data with Transformers".
 
 ## Overview
 
