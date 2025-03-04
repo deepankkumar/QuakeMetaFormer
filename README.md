@@ -8,8 +8,24 @@ Quakemetaformer integrates both satellite imagery and complementary metadata (e.
 
 ## Installation
 
-For installation of the required libraries and dependencies, please refer to the main branch of the original Metaformer repository. You can find the installation instructions there, which include:
+For installation of the required libraries and dependencies, please refer to the main branch of the original Metaformer repository. You can find the detailed installation instructions there, which include:
 
-- Environment setup
-- Dependency installation via `requirements.txt`
-- Additional configuration details
+#### python module
+* install `Pytorch and torchvision`
+```
+pip install torch==1.5.1 torchvision==0.6.1
+```
+* install `timm`
+```
+pip install timm==0.4.5
+```
+* install `Apex`
+```
+git clone https://github.com/NVIDIA/apex
+cd apex
+pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+```
+* install other requirements
+```
+pip install opencv-python==4.5.1.48 yacs==0.1.8
+```
