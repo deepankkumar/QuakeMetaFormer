@@ -12,7 +12,9 @@ def build_model(config):
                 img_size=config.DATA.IMG_SIZE,
                 only_last_cls=config.MODEL.ONLY_LAST_CLS,
                 extra_token_num=config.MODEL.EXTRA_TOKEN_NUM,
-                meta_dims=config.MODEL.META_DIMS
+                meta_dims=config.MODEL.META_DIMS,
+                meta_encoding=config.META_ENCODING,
+                fuse_location=config.FUSE_LOCATION,
         )
     else:
         raise NotImplementedError(f"Unkown model: {model_type}")

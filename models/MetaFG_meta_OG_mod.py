@@ -61,8 +61,7 @@ class MetaFG_Meta(nn.Module):
                 add_meta=True,meta_dims=[4,3],mask_prob=1.0,mask_type='linear',
                 only_last_cls=False,
                 use_checkpoint=False,
-                meta_encoding="resnorm",
-                fuse_location="both"):
+                meta_encoding="resnorm"):
         super().__init__()
         self.meta_encoding = meta_encoding
         self.only_last_cls = only_last_cls
@@ -76,9 +75,6 @@ class MetaFG_Meta(nn.Module):
         self.mask_type = mask_type
         self.attn_embed_dims = attn_embed_dims
         self.extra_token_num = extra_token_num
-        
-        # Store the new argument
-        self.fuse_location = fuse_location
         if self.add_meta:
 #             assert len(meta_dims)==extra_token_num-1
             for ind,meta_dim in enumerate(meta_dims):
@@ -195,7 +191,6 @@ class MetaFG_Meta(nn.Module):
         self.act1 = conv_act_layer(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         #stage_1
-        
         self.stage_1 = nn.ModuleList(make_blocks(1,conv_depths+attn_depths,conv_embed_dims+attn_embed_dims,img_size//4,
                                       dpr=dpr,num_heads=num_heads,extra_token_num=extra_token_num,mlp_ratio=mlp_ratio,stage_type='conv'))
         #stage_2
@@ -298,24 +293,11 @@ class MetaFG_Meta(nn.Module):
         for blk in self.stage_2:
             x = blk(x)
         H0,W0 = self.img_size//8,self.img_size//8
-        
-        
-        # for ind,blk in enumerate(self.stage_3):
-        #     if ind==0:
-        #         x = blk(x,H0,W0,extra_tokens_1)
-        #     else:
-        #         x = blk(x,H0,W0)
-        
-        for ind, blk in enumerate(self.stage_3):
-            if ind == 0:
-                if self.fuse_location in ["both", "3"]:
-                    x = blk(x, H0, W0, extra_tokens_1)
-                    print("fuse location 3")
-                else:
-                    x = blk(x, H0, W0)
+        for ind,blk in enumerate(self.stage_3):
+            if ind==0:
+                x = blk(x,H0,W0,extra_tokens_1)
             else:
-                x = blk(x, H0, W0)
-
+                x = blk(x,H0,W0)
         if not self.only_last_cls:
             cls_1 = x[:, :1, :]
             cls_1 = self.norm_1(cls_1)
@@ -324,24 +306,11 @@ class MetaFG_Meta(nn.Module):
         x = x[:, self.extra_token_num:, :]
         H1,W1 = self.img_size//16,self.img_size//16
         x = x.reshape(B,H1,W1,-1).permute(0, 3, 1, 2).contiguous()
-        
-        
-        # for ind,blk in enumerate(self.stage_4):
-        #     if ind==0:
-        #         x = blk(x,H1,W1,extra_tokens_2)
-        #     else:
-        #         x = blk(x,H1,W1)
-        
-        for ind, blk in enumerate(self.stage_4):
-            if ind == 0:
-                if self.fuse_location in ["both", "4"]:
-                    x = blk(x, H1, W1, extra_tokens_2)
-                    print("fuse location 4")
-                else:
-                    x = blk(x, H1, W1)
+        for ind,blk in enumerate(self.stage_4):
+            if ind==0:
+                x = blk(x,H1,W1,extra_tokens_2)
             else:
-                x = blk(x, H1, W1)
-                
+                x = blk(x,H1,W1)
         cls_2 = x[:, :1, :]
         cls_2 = self.norm_2(cls_2)
         if not self.only_last_cls:
