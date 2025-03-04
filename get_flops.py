@@ -4,6 +4,7 @@ from timm.models import create_model
 from models.CoAt import *
 
 try:
+    
     from mmcv.cnn import get_model_complexity_info
     from mmcv.cnn.utils.flops_counter import get_model_complexity_info, flops_to_string, params_to_string
 except ImportError:
