@@ -88,9 +88,53 @@ def build_dataset(is_train, config):
                              class_ratio=config.DATA.CLASS_RATIO,per_sample=config.DATA.PER_SAMPLE)
         nb_classes = 10000
     elif config.DATA.DATASET == 'inaturelist2021_mini':
+        root = './datasets/inaturelist2021_mini/old'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET)
+        nb_classes = 5
+    elif config.DATA.DATASET == 'building_sat':
         root = './datasets/inaturelist2021_mini'
         dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET)
-        nb_classes = 10000
+        nb_classes = 5
+    elif config.DATA.DATASET == 'Turkey_smaller_EQ':
+        root = './datasets/inaturelist2021_mini'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 5
+    elif config.DATA.DATASET == 'Turkey_larger_EQ':
+        root = './datasets/Turkey_large'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Turkey_larger_EQ_Black':
+        root = './datasets/Turkey_large/Black_images'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Adiyaman':
+        root = './datasets/Adiyaman'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Antakya':
+        root = './datasets/Antakya'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Gaziantep':
+        root = './datasets/Gaziantep'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Kahramanaras':
+        root = './datasets/Turkey_large'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Malatya':
+        root = './datasets/Malatya'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Osmaniye':
+        root = './datasets/Osmaniye'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
+    elif config.DATA.DATASET == 'Sanlurfa':
+        root = './datasets/Sanlurfa'
+        dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET,remove_attribute=config.DATA.REMOVE_ATTRIBUTE)
+        nb_classes = 4
     elif config.DATA.DATASET == 'inaturelist2017':
         root = './datasets/inaturelist2017'
         dataset = DatasetMeta(root=root,transform=transform,train=is_train,aux_info=config.DATA.ADD_META,dataset=config.DATA.DATASET)

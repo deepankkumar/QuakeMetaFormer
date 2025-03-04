@@ -344,41 +344,567 @@ def find_images_and_targets(root,istrain=False,aux_info=False):
             train_class_info = json.load(f)
     else:
         raise ValueError(f'not eixst file {root}/train.json or {root}/train_mini.json')
+    
     with open(os.path.join(root,'val.json'),'r') as f:
         val_class_info = json.load(f)
     categories_2021 = [x['name'].strip().lower() for x in val_class_info['categories']]
     class_to_idx = {c: idx for idx, c in enumerate(categories_2021)}
+    print(categories_2021)
     id2label = dict()
+    
     for categorie in train_class_info['categories']:
         id2label[int(categorie['id'])] = categorie['name'].strip().lower()
+        
+    print(f'number of classes: {len(class_to_idx)}')
+    print(f'classes: {class_to_idx.keys()}')
     class_info = train_class_info if istrain else val_class_info
     
     images_and_targets = []
     images_info = []
     if aux_info:
-        temporal_info = []
+        # temporal_info = []
         spatial_info = []
+        building_info = []
 
     for image,annotation in zip(class_info['images'],class_info['annotations']):
         file_path = os.path.join(root,image['file_name'])
         id_name = id2label[int(annotation['category_id'])]
         target = class_to_idx[id_name]
+        # print('target:',target)
         date = image['date']
         latitude = image['latitude']
+        # change it to number
+        # latitude = float(latitude)
         longitude = image['longitude']
+        # longitude = float(longitude)
         location_uncertainty = image['location_uncertainty']
-        images_info.append({'date':date,
+        # year_built , reroof_year to int, number_of_stories , first_floor_elevation 
+        # year_built = image['year_built']
+        # reroof_year = image['reroof_year']
+        # number_of_stories = image['number_of_stories']
+        # first_floor_elevation = image['first_floor_elevation']
+        
+        images_info.append({
+                'date':date,
                 'latitude':latitude,
                 'longitude':longitude,
+                # "year_built":year_built,
+                # "reroof_year":reroof_year,
+                # "number_of_stories":number_of_stories,
+                # "first_floor_elevation":first_floor_elevation,
                 'location_uncertainty':location_uncertainty,
                 'target':target}) 
         if aux_info:
             temporal_info = get_temporal_info(date)
             spatial_info = get_spatial_info(latitude,longitude)
-            images_and_targets.append((file_path,target,temporal_info+spatial_info))
+            # building_info = [year_built,reroof_year,number_of_stories,first_floor_elevation]
+            images_and_targets.append((file_path,target,spatial_info+temporal_info))
+            # print(temporal_info)
+            # print(spatial_info)
+            # print(temporal_info+spatial_info)
         else:
             images_and_targets.append((file_path,target))
     return images_and_targets,class_to_idx,images_info
+
+def find_images_and_targets_sat(root,istrain=False,aux_info=False):
+    if os.path.exists(os.path.join(root,'train.json')):
+        with open(os.path.join(root,'train.json'),'r') as f:
+            train_class_info = json.load(f)
+    elif os.path.exists(os.path.join(root,'train_mini.json')):
+        with open(os.path.join(root,'train_mini.json'),'r') as f:
+            train_class_info = json.load(f)
+    else:
+        raise ValueError(f'not eixst file {root}/train.json or {root}/train_mini.json')
+    
+    with open(os.path.join(root,'val.json'),'r') as f:
+        val_class_info = json.load(f)
+    categories_2021 = [x['name'].strip().lower() for x in val_class_info['categories']]
+    class_to_idx = {c: idx for idx, c in enumerate(categories_2021)}
+    id2label = dict()
+    
+    for categorie in train_class_info['categories']:
+        id2label[int(categorie['id'])] = categorie['name'].strip().lower()
+        
+    print(f'number of classes: {len(class_to_idx)}')
+    print(f'classes: {class_to_idx.keys()}')
+    class_info = train_class_info if istrain else val_class_info
+    
+    images_and_targets = []
+    images_info = []
+    if aux_info:
+        # temporal_info = []
+        spatial_info = []
+        building_info = []
+
+    for image,annotation in zip(class_info['images'],class_info['annotations']):
+        file_path = os.path.join(root,image['file_name'])
+        id_name = id2label[int(annotation['category_id'])]
+        target = class_to_idx[id_name]
+        print('target:',target)
+        # date = image['date']
+        latitude = image['latitude']
+        # change it to number
+        # latitude = float(latitude)
+        longitude = image['longitude']
+        # longitude = float(longitude)
+        # location_uncertainty = None
+        # year_built , reroof_year to int, number_of_stories , first_floor_elevation 
+        year_built = image['year_built']
+        reroof_year = image['reroof_year']
+        number_of_stories = image['number_of_stories']
+        first_floor_elevation = image['first_floor_elevation']
+        # roof_shape, roof_cover and structual_framing_system 
+        roof_shape = image['roof_shape']
+        roof_cover = image['roof_cover']
+        structural_framing_system = image['structural_framing_system']
+        
+        images_info.append({
+                # 'date':date,
+                'latitude':latitude,
+                'longitude':longitude,
+                "year_built":year_built,
+                "reroof_year":reroof_year,
+                "number_of_stories":number_of_stories,
+                "first_floor_elevation":first_floor_elevation,
+                "roof_shape":roof_shape,
+                "roof_cover":roof_cover,
+                "structural_framing_system":structural_framing_system,
+                # 'location_uncertainty':location_uncertainty,
+                'target':target}) 
+        if aux_info:
+            # temporal_info = get_temporal_info(date)
+            spatial_info = get_spatial_info(latitude,longitude)
+            building_info = [year_built,reroof_year,number_of_stories,first_floor_elevation]
+            building_frame_info = [roof_shape,roof_cover,structural_framing_system]
+            images_and_targets.append((file_path,target,spatial_info+building_info+building_frame_info))
+            # print(temporal_info)
+            # print(spatial_info)
+            # print(temporal_info+spatial_info)
+        else:
+            images_and_targets.append((file_path,target))
+    return images_and_targets,class_to_idx,images_info
+
+
+def find_images_and_targets_EQ_small(root,istrain=False,aux_info=False,remove_attribute=None):
+    if os.path.exists(os.path.join(root,'train.json')):
+        with open(os.path.join(root,'train.json'),'r') as f:
+            train_class_info = json.load(f)
+    elif os.path.exists(os.path.join(root,'train_mini.json')):
+        with open(os.path.join(root,'train_mini.json'),'r') as f:
+            train_class_info = json.load(f)
+    else:
+        raise ValueError(f'not eixst file {root}/train.json or {root}/train_mini.json')
+    
+    with open(os.path.join(root,'val.json'),'r') as f:
+        val_class_info = json.load(f)
+    categories_2021 = [x['name'].strip().lower() for x in val_class_info['categories']]
+    class_to_idx = {c: idx for idx, c in enumerate(categories_2021)}
+    id2label = dict()
+    
+    for categorie in train_class_info['categories']:
+        id2label[int(categorie['id'])] = categorie['name'].strip().lower()
+        
+    print(f'number of classes: {len(class_to_idx)}')
+    print(f'classes: {class_to_idx.keys()}')
+    class_info = train_class_info if istrain else val_class_info
+    
+    images_and_targets = []
+    images_info = []
+    if aux_info:
+        # temporal_info = []
+        spatial_info = []
+        building_info = []
+
+    for image,annotation in zip(class_info['images'],class_info['annotations']):
+        file_path = os.path.join(root,image['file_name'])
+        id_name = id2label[int(annotation['category_id'])]
+        target = class_to_idx[id_name]
+        Amplitude = image['Amplitude']
+        Damage_Pro = image['Damage_Pro']
+        Damage_P_1 = image['Damage_P_1']
+        Normalized = image['Normalized']
+        Peak = image['Peak groun']
+        
+        image_info_temp = {
+            'Amplitude': Amplitude,
+            'Damage_Pro': Damage_Pro,
+            'Damage_P_1': Damage_P_1,
+            'Normalized': Normalized,
+            'Peak_Groun': Peak,
+            'target': target
+        }
+        test = image_info_temp
+        
+        if remove_attribute:
+            if remove_attribute in image_info_temp:
+                del image_info_temp[remove_attribute]
+        
+        images_info.append(image_info_temp)
+        
+        if aux_info:
+            SAR = [Amplitude,Damage_Pro,Damage_P_1,Normalized]
+            EQ = [Peak]
+            
+            # Remove the specified attribute from SAR, EQ
+            if remove_attribute:
+                # Remove from SAR
+                SAR = [value for attr, value in zip(['Amplitude', 'Damage_Pro', 'Damage_P_1', 'Normalized'], SAR) if attr != remove_attribute]
+                # Remove from EQ
+                if remove_attribute == 'Peak_Groun':
+                    EQ = []
+                
+            # Combine SAR and EQ
+            combined_info = SAR
+            if EQ:
+                combined_info += EQ
+                
+            images_and_targets.append((file_path, target, combined_info))
+        else:
+            images_and_targets.append((file_path, target))
+            
+    return images_and_targets,class_to_idx,images_info
+
+import os
+import json
+
+# def find_images_and_targets_EQ_large(root, istrain=False, aux_info=False, remove_attribute=None):
+#     if os.path.exists(os.path.join(root, 'Train_kahramanmaras.json')):
+#         with open(os.path.join(root, 'Train_kahramanmaras.json'), 'r') as f:
+#             train_class_info = json.load(f)
+#     elif os.path.exists(os.path.join(root, 'train_mini.json')):
+#         with open(os.path.join(root, 'train_mini.json'), 'r') as f:
+#             train_class_info = json.load(f)
+#     else:
+#         raise ValueError(f'File not found: {root}/train.json or {root}/train_mini.json')
+    
+#     with open(os.path.join(root, 'Val_adiyaman.json'), 'r') as f:
+#         val_class_info = json.load(f)
+#     categories_2021 = [x['name'].strip().lower() for x in val_class_info['categories']]
+#     class_to_idx = {c: idx for idx, c in enumerate(categories_2021)}
+#     id2label = dict()
+    
+#     for categorie in train_class_info['categories']:
+#         id2label[int(categorie['id'])] = categorie['name'].strip().lower()
+        
+#     print(f'number of classes: {len(class_to_idx)}')
+#     print(f'classes: {class_to_idx.keys()}')
+#     class_info = train_class_info if istrain else val_class_info
+    
+#     images_and_targets = []
+#     images_info = []
+#     if aux_info:
+#         spatial_info = []
+#         building_info = []
+
+#     for image, annotation in zip(class_info['images'], class_info['annotations']):
+#         file_path = os.path.join(root, image['file_name'])
+#         id_name = id2label[int(annotation['category_id'])]
+#         target = class_to_idx[id_name]
+
+#         # intensity = image['intensity']
+#         intensity_2 = image['intensity_2']
+#         MI = image['MI']
+#         PGA = image['PGA']
+#         PGV = image['PGV']
+#         PSA03 = image['PSA03']
+#         PSA10 = image['PSA10']
+#         PSA30 = image['PSA30']
+#         VS30 = image['VS30']
+#         Amplitude_VV = image['Amplitude_VV']
+#         Amplitude_VH = image['Amplitude_VH']
+#         image_info_temp = {
+#             'MI': MI,
+#             'PGA': PGA,
+#             'PGV': PGV,
+#             'PSA03': PSA03,
+#             'PSA10': PSA10,
+#             'PSA30': PSA30,
+#             # 'intensity': intensity,
+#             'VS30': VS30,
+#             'intensity_2': intensity_2,
+#             'Amplitude_VV': Amplitude_VV,
+#             'Amplitude_VH': Amplitude_VH,
+#             'target': target
+#         }
+#         test = image_info_temp
+
+#         if remove_attribute:
+#             if remove_attribute in image_info_temp:
+#                 del image_info_temp[remove_attribute]
+        
+#         images_info.append(image_info_temp)
+        
+#         if aux_info:
+#             IN = [intensity_2, Amplitude_VV, Amplitude_VH]
+#             EQ = [MI, PGA, PGV, PSA03, PSA10, PSA30]
+#             SOIL = [VS30]
+
+#             # Remove the specified attribute from IN, EQ, SOIL
+#             if remove_attribute:
+#                 # Remove from IN
+#                 IN = [value for attr, value in zip([ 'intensity_2', 'Amplitude_VH','Amplitude_VV'], IN) if attr != remove_attribute]
+#                 # Remove from EQ
+#                 EQ = [value for attr, value in zip(['MI', 'PGA', 'PGV', 'PSA03', 'PSA10', 'PSA30'], EQ) if attr != remove_attribute]
+#                 # Remove from SOIL
+#                 if remove_attribute == 'VS30':
+#                     SOIL = []
+
+#             # Combine IN, EQ, and SOIL
+#             combined_info = IN + EQ
+#             if SOIL:
+#                 combined_info += SOIL
+
+#             images_and_targets.append((file_path, target, combined_info))
+#         else:
+#             images_and_targets.append((file_path, target))
+    
+#     return images_and_targets, class_to_idx, images_info
+def find_images_and_targets_EQ_large_black(root, istrain=False, aux_info=False, remove_attribute=None):
+    if os.path.exists(os.path.join(root, 'train.json')):
+        with open(os.path.join(root, 'train.json'), 'r') as f:
+            train_class_info = json.load(f)
+    elif os.path.exists(os.path.join(root, 'train_mini.json')):
+        with open(os.path.join(root, 'train_mini.json'), 'r') as f:
+            train_class_info = json.load(f)
+    else:
+        raise ValueError(f'File not found: {root}/train.json or {root}/train_mini.json')
+    
+    with open(os.path.join(root, 'val.json'), 'r') as f:
+        val_class_info = json.load(f)
+    categories_2021 = [x['name'].strip().lower() for x in val_class_info['categories']]
+    class_to_idx = {c: idx for idx, c in enumerate(categories_2021)}
+    id2label = dict()
+    
+    for categorie in train_class_info['categories']:
+        id2label[int(categorie['id'])] = categorie['name'].strip().lower()
+        
+    print(f'number of classes: {len(class_to_idx)}')
+    print(f'classes: {class_to_idx.keys()}')
+    class_info = train_class_info if istrain else val_class_info
+    
+    images_and_targets = []
+    images_info = []
+    if aux_info:
+        spatial_info = []
+        building_info = []
+
+    for image, annotation in zip(class_info['images'], class_info['annotations']):
+        file_path = os.path.join(root, image['file_name'])
+        id_name = id2label[int(annotation['category_id'])]
+        target = class_to_idx[id_name]
+
+        # intensity = image['intensity']
+        intensity_2 = image['intensity_2']
+        MI = image['MI']
+        PGA = image['PGA']
+        PGV = image['PGV']
+        PSA03 = image['PSA03']
+        PSA10 = image['PSA10']
+        PSA30 = image['PSA30']
+        VS30 = image['VS30']
+        Amplitude_VV = image['Amplitude_VV']
+        Amplitude_VH = image['Amplitude_VH']
+        image_info_temp = {
+            'MI': MI,
+            'PGA': PGA,
+            'PGV': PGV,
+            'PSA03': PSA03,
+            'PSA10': PSA10,
+            'PSA30': PSA30,
+            # 'intensity': intensity,
+            'VS30': VS30,
+            'intensity_2': intensity_2,
+            'Amplitude_VV': Amplitude_VV,
+            'Amplitude_VH': Amplitude_VH,
+            'target': target
+        }
+        test = image_info_temp
+
+        if remove_attribute:
+            if remove_attribute in image_info_temp:
+                del image_info_temp[remove_attribute]
+        
+        images_info.append(image_info_temp)
+        
+        if aux_info:
+            IN = [intensity_2, Amplitude_VV, Amplitude_VH]
+            EQ = [MI, PGA, PGV, PSA03, PSA10, PSA30]
+            SOIL = [VS30]
+
+            # Remove the specified attribute from IN, EQ, SOIL
+            if remove_attribute:
+                # Remove from IN
+                IN = [value for attr, value in zip([ 'intensity_2', 'Amplitude_VH','Amplitude_VV'], IN) if attr != remove_attribute]
+                # Remove from EQ
+                EQ = [value for attr, value in zip(['MI', 'PGA', 'PGV', 'PSA03', 'PSA10', 'PSA30'], EQ) if attr != remove_attribute]
+                # Remove from SOIL
+                if remove_attribute == 'VS30':
+                    SOIL = []
+
+            # Combine IN, EQ, and SOIL
+            combined_info = IN + EQ
+            if SOIL:
+                combined_info += SOIL
+
+            images_and_targets.append((file_path, target, combined_info))
+        else:
+            images_and_targets.append((file_path, target))
+    
+    return images_and_targets, class_to_idx, images_info
+
+
+
+def find_images_and_targets_EQ_large(root, istrain=False, aux_info=False, remove_attribute=None):
+    if os.path.exists(os.path.join(root, 'train_multiple_eq.json')):
+        with open(os.path.join(root, 'train_multiple_eq.json'), 'r') as f:
+            train_class_info = json.load(f)
+    elif os.path.exists(os.path.join(root, 'train_mini.json')):
+        with open(os.path.join(root, 'train_mini.json'), 'r') as f:
+            train_class_info = json.load(f)
+    else:
+        raise ValueError(f'File not found: {root}/train.json or {root}/train_mini.json')
+    
+    with open(os.path.join(root, 'val_multiple_eq.json'), 'r') as f:
+        val_class_info = json.load(f)
+    categories_2021 = [x['name'].strip().lower() for x in val_class_info['categories']]
+    class_to_idx = {c: idx for idx, c in enumerate(categories_2021)}
+    id2label = dict()
+    
+    for categorie in train_class_info['categories']:
+        id2label[int(categorie['id'])] = categorie['name'].strip().lower()
+        
+    print(f'number of classes: {len(class_to_idx)}')
+    print(f'classes: {class_to_idx.keys()}')
+    class_info = train_class_info if istrain else val_class_info
+    
+    images_and_targets = []
+    images_info = []
+    if aux_info:
+        spatial_info = []
+        building_info = []
+
+    for image, annotation in zip(class_info['images'], class_info['annotations']):
+        file_path = os.path.join(root, image['file_name'])
+        id_name = id2label[int(annotation['category_id'])]
+        target = class_to_idx[id_name]
+
+        # intensity = image['intensity']
+        intensity_2 = image['intensity_2']
+        VS30 = image['VS30']
+        Amplitude_VV = image['Amplitude_VV']
+        Amplitude_VH = image['Amplitude_VH']
+        
+        MI = image['MI']
+        PGA = image['PGA']
+        PGV = image['PGV']
+        PSA03 = image['PSA03']
+        PSA10 = image['PSA10']
+        PSA30 = image['PSA30']
+        
+        MI_1 = image['MI_1']
+        PGA_1 = image['PGA_1']
+        PGV_1 = image['PGV_1']
+        PSA03_1 = image['PSA03_1']
+        PSA10_1 = image['PSA10_1']
+        PSA30_1 = image['PSA30_1']
+        
+        # do it for the second earthquake
+        MI_2 = image['MI_2']
+        PGA_2 = image['PGA_2']
+        PGV_2 = image['PGV_2']
+        PSA03_2 = image['PSA03_2']
+        PSA10_2 = image['PSA10_2']
+        PSA30_2 = image['PSA30_2']
+        
+        # do it for the third earthquake
+        MI_3 = image['MI_3']
+        PGA_3 = image['PGA_3']
+        PGV_3 = image['PGV_3']
+        PSA03_3 = image['PSA03_3']
+        PSA10_3 = image['PSA10_3']
+        PSA30_3 = image['PSA30_3']
+        
+        # do it for the fourth earthquake
+        MI_4 = image['MI_4']
+        PGA_4 = image['PGA_4']
+        PGV_4 = image['PGV_4']
+        PSA03_4 = image['PSA03_4']
+        PSA10_4 = image['PSA10_4']
+        PSA30_4 = image['PSA30_4']
+        
+        
+        image_info_temp = {
+            'MI': MI,
+            'PGA': PGA,
+            'PGV': PGV,
+            'PSA03': PSA03,
+            'PSA10': PSA10,
+            'PSA30': PSA30,
+            # 'intensity': intensity,
+            'VS30': VS30,
+            'intensity_2': intensity_2,
+            'Amplitude_VV': Amplitude_VV,
+            'Amplitude_VH': Amplitude_VH,
+            'MI_1': MI_1,
+            'PGA_1': PGA_1,
+            'PGV_1': PGV_1,
+            'PSA03_1': PSA03_1,
+            'PSA10_1': PSA10_1,
+            'PSA30_1': PSA30_1,
+            'MI_2': MI_2,
+            'PGA_2': PGA_2,
+            'PGV_2': PGV_2,
+            'PSA03_2': PSA03_2,
+            'PSA10_2': PSA10_2,
+            'PSA30_2': PSA30_2,
+            'MI_3': MI_3,
+            'PGA_3': PGA_3,
+            'PGV_3': PGV_3,
+            'PSA03_3': PSA03_3,
+            'PSA10_3': PSA10_3,
+            'PSA30_3': PSA30_3,
+            'MI_4': MI_4,
+            'PGA_4': PGA_4,
+            'PGV_4': PGV_4,
+            'PSA03_4': PSA03_4,
+            'PSA10_4': PSA10_4,
+            'PSA30_4': PSA30_4,
+            
+            'target': target
+        }
+        test = image_info_temp
+
+        if remove_attribute:
+            if remove_attribute in image_info_temp:
+                del image_info_temp[remove_attribute]
+        
+        images_info.append(image_info_temp)
+        
+        if aux_info:
+            IN = [intensity_2, Amplitude_VV, Amplitude_VH]
+            EQ = [MI, PGA, PGV, PSA03, PSA10, PSA30, MI_1, PGA_1, PGV_1, PSA03_1, PSA10_1, PSA30_1, MI_2, PGA_2, PGV_2, PSA03_2, PSA10_2, PSA30_2, MI_3, PGA_3, PGV_3, PSA03_3, PSA10_3, PSA30_3, MI_4, PGA_4, PGV_4, PSA03_4, PSA10_4, PSA30_4]
+            SOIL = [VS30]
+
+            # Remove the specified attribute from IN, EQ, SOIL
+            if remove_attribute:
+                # Remove from IN
+                IN = [value for attr, value in zip([ 'intensity_2', 'Amplitude_VH','Amplitude_VV'], IN) if attr != remove_attribute]
+                # Remove from EQ
+                EQ = [value for attr, value in zip(['MI', 'PGA', 'PGV', 'PSA03', 'PSA10', 'PSA30'], EQ) if attr != remove_attribute]
+                # Remove from SOIL
+                if remove_attribute == 'VS30':
+                    SOIL = []
+
+            # Combine IN, EQ, and SOIL
+            combined_info = IN + EQ
+            if SOIL:
+                combined_info += SOIL
+
+            images_and_targets.append((file_path, target, combined_info))
+        else:
+            images_and_targets.append((file_path, target))
+    
+    return images_and_targets, class_to_idx, images_info
 
 
 class DatasetMeta(data.Dataset):
@@ -391,11 +917,21 @@ class DatasetMeta(data.Dataset):
             aux_info=False,
             dataset='inaturelist2021',
             class_ratio=1.0,
-            per_sample=1.0):
+            per_sample=1.0,
+            remove_attribute=None):
         self.aux_info = aux_info
         self.dataset = dataset
         if dataset in ['inaturelist2021','inaturelist2021_mini']:
             images, class_to_idx,images_info = find_images_and_targets(root,train,aux_info)
+        elif dataset == 'building_sat':
+            images, class_to_idx,images_info = find_images_and_targets_sat(root,train,aux_info)
+            
+        elif dataset in ['Turkey_smaller_EQ']:
+            images, class_to_idx,images_info = find_images_and_targets_EQ_small(root,train,aux_info,remove_attribute)
+        elif dataset in ['Turkey_larger_EQ','Adiyaman', 'Antakya', 'Gaziantep', 'Kahramanaras', 'Malatya', 'Osmaniye', 'Sanlurfa']:
+            images, class_to_idx,images_info = find_images_and_targets_EQ_large(root,train,aux_info,remove_attribute)
+        elif dataset in ['Turkey_larger_EQ_Black']:
+            images, class_to_idx,images_info = find_images_and_targets_EQ_large_black(root,train,aux_info,remove_attribute)
         elif dataset in ['inaturelist2017','inaturelist2018']:
             images, class_to_idx,images_info = find_images_and_targets_2017_2018(root,dataset,train,aux_info)
         elif dataset == 'cub-200':
@@ -441,17 +977,6 @@ class DatasetMeta(data.Dataset):
 
     def __len__(self):
         return len(self.samples)
-if __name__ == '__main__':
-#     train_dataset = DatasetPre('./fgvc_previous','./fgvc_previous',train=True,aux_info=True)
-#     import ipdb;ipdb.set_trace()
-#     train_dataset = DatasetMeta('./nabirds',train=True,aux_info=False,dataset='nabirds')
-#     find_images_and_targets_stanforddogs('./stanforddogs',None,istrain=True)
-#     find_images_and_targets_oxfordflower('./oxfordflower',None,istrain=True)
-    find_images_and_targets_ablation('./inaturelist2021',True,True,0.5,1.0)
-#     find_images_and_targets_cub200('./cub-200','cub-200',True,True)
-#     find_images_and_targets_aircraft('./aircraft','aircraft',True)
-#     train_dataset = DatasetMeta('./aircraft',train=False,aux_info=False,dataset='aircraft')
-    import ipdb;ipdb.set_trace()
-#     find_images_and_targets_2017('')
+
     
 
