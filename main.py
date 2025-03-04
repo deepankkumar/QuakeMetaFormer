@@ -197,22 +197,22 @@ def main(config):
     
     if config.CLASS_WEIGHTS is not None:
         class_weights = torch.FloatTensor(config.CLASS_WEIGHTS).cuda()
-        class_weights *= 2  # Increase class weights by multiplying by 10
+        # class_weights *= 2  # Increase class weights by multiplying by 10
 
     elif config.DATA.DATASET == 'Turkey_smaller_EQ':   
         class_weights = torch.FloatTensor([0.0064, 0.0202, 0.4884, 0.0822, 0.4028]).cuda()
-        class_weights *= 2  # Increase class weights by multiplying by 10
+        # class_weights *= 2  # Increase class weights by multiplying by 10
 
     else:
         class_weights = torch.FloatTensor([0.34, 1.26, 9.8, 5.85]).cuda()
-        class_weights *= 2  # Increase class weights by multiplying by 10
+        # class_weights *= 2  # Increase class weights by multiplying by 10
         
     print("***********************************")
     print("Class weights",class_weights)
     
-    # criterion = FocalLoss(weight=class_weights, gamma=4, device='cuda')
+    criterion = FocalLoss(weight=class_weights, gamma=4, device='cuda')
     # criterion = torch.nn.CrossEntropyLoss()
-    criterion = LabelSmoothingCrossEntropy(smoothing=config.MODEL.LABEL_SMOOTHING)
+    # criterion = LabelSmoothingCrossEntropy(smoothing=config.MODEL.LABEL_SMOOTHING)
     max_accuracy = 0.0
     max_f1 = 0.0
     max_auroc = 0.0
