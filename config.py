@@ -24,8 +24,10 @@ _C.DATA.BATCH_SIZE = 32
 _C.DATA.DATA_PATH = ''
 # Dataset name
 _C.DATA.DATASET = 'imagenet'
+# attribute remove
+_C.DATA.REMOVE_ATTRIBUTE = None
 # Input image size
-_C.DATA.IMG_SIZE = 224
+_C.DATA.IMG_SIZE = 384
 # Interpolation to resize image (random, bilinear, bicubic)
 _C.DATA.INTERPOLATION = 'bicubic'
 _C.DATA.TRAIN_INTERPOLATION = 'bicubic'
@@ -44,7 +46,6 @@ _C.DATA.VAL_PATH = None
 # arnold dataset parallel
 _C.DATA.NUM_READERS = 4
 
-
 #meta info
 _C.DATA.ADD_META = False
 _C.DATA.FUSION = 'early'
@@ -52,6 +53,8 @@ _C.DATA.MASK_PROB = 0.0
 _C.DATA.MASK_TYPE = 'constant'
 _C.DATA.LATE_FUSION_LAYER = -1
 
+# perturbation_feature
+_C.DATA.PERTURBATION_FEATURE = -1
 # -----------------------------------------------------------------------------
 # Model settings
 # -----------------------------------------------------------------------------
@@ -81,19 +84,21 @@ _C.MODEL.META_DIMS = []
 
 
 
+
+
 # -----------------------------------------------------------------------------
 # Training settings
 # -----------------------------------------------------------------------------
 _C.TRAIN = CN()
 _C.TRAIN.START_EPOCH = 0
-_C.TRAIN.EPOCHS = 300
+_C.TRAIN.EPOCHS = 150
 _C.TRAIN.WARMUP_EPOCHS = 20
 _C.TRAIN.WEIGHT_DECAY = 0.05
-_C.TRAIN.BASE_LR = 1e-4 # 5e-4
+_C.TRAIN.BASE_LR =  0.5e-4
 _C.TRAIN.WARMUP_LR = 5e-7
-_C.TRAIN.MIN_LR = 1e-5 # 5e-6
+_C.TRAIN.MIN_LR = 5e-6
 # Clip gradient norm
-_C.TRAIN.CLIP_GRAD = 5.0
+_C.TRAIN.CLIP_GRAD = 1.0
 # Auto resume from latest checkpoint
 _C.TRAIN.AUTO_RESUME = True
 # Gradient accumulation steps
@@ -136,7 +141,7 @@ _C.AUG.REMODE = 'pixel'
 # Random erase count
 _C.AUG.RECOUNT = 1
 # Mixup alpha, mixup enabled if > 0
-_C.AUG.MIXUP = 0.8
+_C.AUG.MIXUP = 0.0
 # Cutmix alpha, cutmix enabled if > 0
 _C.AUG.CUTMIX = 1.0
 # Cutmix min/max ratio, overrides alpha and enables cutmix if set
@@ -160,13 +165,13 @@ _C.TEST.CROP = True
 # -----------------------------------------------------------------------------
 # Mixed precision opt level, if O0, no amp is used ('O0', 'O1', 'O2')
 # overwritten by command line argument
-_C.AMP_OPT_LEVEL = ''
+_C.AMP_OPT_LEVEL = 'O1'
 # Path to output folder, overwritten by command line argument
 _C.OUTPUT = ''
 # Tag of experiment, overwritten by command line argument
 _C.TAG = 'default'
 # Frequency to save checkpoint
-_C.SAVE_FREQ = 1
+_C.SAVE_FREQ = 25
 # Frequency to logging info
 _C.PRINT_FREQ = 10
 # Fixed random seed
@@ -178,8 +183,14 @@ _C.THROUGHPUT_MODE = False
 # local rank for DistributedDataParallel, given by command line argument
 _C.LOCAL_RANK = 0
 
+# class_weight
+_C.CLASS_WEIGHTS = None
 
+# meta_encoding
+_C.META_ENCODING = 'resnorm'
 
+# fuse_location 
+_C.FUSE_LOCATION = 'both'
 
 def _update_config_from_file(config, cfg_file):
     config.defrost()
@@ -228,6 +239,8 @@ def update_config(config, args):
         config.EVAL_MODE = True
     if args.throughput:
         config.THROUGHPUT_MODE = True
+    if args.perturbation_feature:
+        config.DATA.PERTURBATION_FEATURE = args.perturbation_feature
 
         
     if args.num_workers is not None:
@@ -249,6 +262,12 @@ def update_config(config, args):
         config.TRAIN.EPOCHS = args.epochs
     if args.dataset is not None:
         config.DATA.DATASET = args.dataset
+    if args.remove_attribute is not None:
+        config.DATA.REMOVE_ATTRIBUTE = args.remove_attribute
+    if args.class_weights is not None:
+        config.CLASS_WEIGHTS = args.class_weights
+    if args.meta_encoding is not None:
+        config.META_ENCODING = args.meta_encoding
     if args.lr_scheduler_name is not None:
         config.TRAIN.LR_SCHEDULER.NAME = args.lr_scheduler_name
     if args.pretrain is not None:

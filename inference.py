@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModel
+# from transformers import AutoTokenizer, AutoModel
 import torch
 from PIL import Image
 from config import get_inference_config
@@ -46,8 +46,8 @@ class GenerateEmbedding:
     def __init__(self, text_file):
         self.text_file = text_file
 
-        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-        self.model = AutoModel.from_pretrained("bert-base-uncased")
+        # self.tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        # self.model = AutoModel.from_pretrained("bert-base-uncased")
 
     def generate(self):
         text_list = []
@@ -74,7 +74,7 @@ class Inference:
         self.model_path = model_path
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # self.classes = ("cat", "dog")
-        self.classes = read_class_names(r"D:\dataset\CUB_200_2011\CUB_200_2011\classes_custom.txt")
+        # self.classes = read_class_names(r"D:\dataset\CUB_200_2011\CUB_200_2011\classes_custom.txt")
 
         self.config = model_config(self.config_path)
         self.model = build_model(self.config)
@@ -107,11 +107,11 @@ class Inference:
 
 def parse_option():
     parser = argparse.ArgumentParser('MetaFG Inference script', add_help=False)
-    parser.add_argument('--cfg', type=str, default='D:/pycharmprojects/MetaFormer/configs/MetaFG_meta_bert_1_224.yaml', metavar="FILE", help='path to config file', )
+    parser.add_argument('--cfg', type=str, default='./configs/MetaFG_meta_bert_1_224.yaml', metavar="FILE", help='path to config file', )
     # easy config modification
-    parser.add_argument('--model-path', default='D:\pycharmprojects\MetaFormer\output\MetaFG_meta_1\cub_200\ckpt_epoch_92.pth', type=str, help="path to model data")
-    parser.add_argument('--img-path', default=r"D:\dataset\CUB_200_2011\CUB_200_2011\images\012.Yellow_headed_Blackbird\Yellow_Headed_Blackbird_0003_8337.jpg", type=str, help='path to image')
-    parser.add_argument('--meta-path', default=r"D:\dataset\CUB_200_2011\text_c10\012.Yellow_headed_Blackbird\Yellow_Headed_Blackbird_0003_8337.txt", type=str, help='path to meta data')
+    parser.add_argument('--model-path', default='./configs/MetaFG_2_384.yaml', type=str, help="path to model data")
+    parser.add_argument('--img-path', default="./datasets/Adiyaman/class_4/000024.jpg", type=str, help='path to image')
+    # parser.add_argument('--meta-path', default=r"D:\dataset\CUB_200_2011\text_c10\012.Yellow_headed_Blackbird\Yellow_Headed_Blackbird_0003_8337.txt", type=str, help='path to meta data')
     args = parser.parse_args()
     return args
 
