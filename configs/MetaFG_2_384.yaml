@@ -2,4 +2,4 @@ DATA:
   IMG_SIZE: 384
 MODEL:
   TYPE: MetaFG
-  NAME: MetaFG_1
+  NAME: MetaFG_2
